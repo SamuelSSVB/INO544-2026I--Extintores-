@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExtintorAI — Detector Inteligente de Extintores</title>
+    <meta name="description" content="Aplicación de Inteligencia Artificial para la detección y reconocimiento de extintores en tiempo real mediante visión por computadora y redes neuronales.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧯</text></svg>">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <!-- Logo -->
+            <div class="sidebar-logo" id="sidebar-logo-btn" title="Información del Sistema" style="cursor: pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L3 7v6c0 5.25 3.75 10.13 9 11 5.25-.87 9-5.75 9-11V7l-9-5z"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                </svg>
+            </div>
+
+            <!-- Nube de descripción del sistema (Speech bubble / Cloud Popover) -->
+            <div class="system-info-cloud" id="system-info-cloud" style="display: none;">
+                <div class="cloud-arrow"></div>
+                <div class="cloud-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    <span>Descripción del Sistema</span>
+                </div>
+                <div class="cloud-body">
+                    <p class="system-description-text" style="font-size: 13px; line-height: 1.6; color: var(--text-light); text-align: justify; margin: 0;">
+                        <strong>ExtintorAI</strong> es un sistema inteligente de visión artificial y redes neuronales convolucionales optimizadas (bajo el estándar ONNX y MobileNetV2).
+                    </p>
+                    <p class="system-description-text" style="font-size: 13px; line-height: 1.6; color: var(--text-light); text-align: justify; margin: 8px 0 0 0;">
+                        Está diseñado para clasificar y verificar la presencia de extintores reglamentarios de forma automatizada mediante el análisis de imágenes subidas o streaming de video en tiempo real, garantizando una supervisión de seguridad industrial moderna y ágil.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="dashboard" data-tooltip="Inicio" id="nav-dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </button>
+                <button class="nav-item" data-page="historial" data-tooltip="Historial" id="nav-historial">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
+            </nav>
+        </div>
+
+    </aside>
+
+    <!-- ═══════════ MAIN CONTENT ═══════════ -->
+    <main class="main-content">
+
+        <!-- ── Header ── -->
+        <header class="header">
+            <div class="header-left">
+                <p class="greeting">Bienvenido al sistema de detección,</p>
+                <h1>Detector de Extintores IA</h1>
+            </div>
+            <div class="header-right">
+                <div class="stat-counter">
+                    <span class="stat-label">Efectividad Promedio</span>
+                    <span class="stat-value" id="stat-effectiveness">94%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══════ PAGE: Dashboard ═══════ -->
+        <section class="page active" id="page-dashboard">
+        <div class="content-grid">
+
+            <div class="left-panel" style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- ╔═══ Scan Zone ═══╗ -->
+            <div class="scan-zone card">
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="upload" id="tab-btn-upload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Subir Imagen
+                    </button>
+                    <button class="tab" data-tab="camera" id="tab-btn-camera">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        Cámara en Vivo
+                    </button>
+                </div>
+
+                <!-- Tab: Upload -->
+                <div class="tab-content active" id="panel-upload">
+                    <!-- Dropzone -->
+                    <div class="dropzone" id="dropzone">
+                        <div class="dropzone-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3>Arrastra una imagen aquí</h3>
+                        <p>o haz clic para seleccionar un archivo .jpg / .png</p>
+                        <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp">
+                    </div>
+
+                    <!-- Result (hidden by default) -->
+                    <div id="result-area" style="display:none;">
+                        <div class="result-display" id="result-display">
+                            <img id="result-image" src="" alt="Imagen analizada">
+                            <div class="result-overlay">
+                                <span class="result-badge" id="result-badge"></span>
+                            </div>
+                            <!-- Scan animation (shown during processing) -->
+                            <div class="scan-overlay" id="scan-overlay" style="display:none;">
+                                <div class="scan-line"></div>
+                            </div>
+                            <div class="processing-label" id="processing-label" style="display:none;">
+                                <div class="spinner"></div>
+                                Analizando imagen...
+                            </div>
+                        </div>
+                        
+                        <!-- Caja de Alerta cuando NO es Extintor (colocada abajo de la imagen) -->
+                        <div class="result-warning-box" id="result-warning-box" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <span id="result-warning-text"></span>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn-secondary" id="btn-new-detection">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="16" height="16">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                                </svg>
+                                Nueva Detección
+                            </button>
+                            <button class="btn-primary" id="btn-rescan" style="padding: 10px 24px; font-size: 13px; border-radius: var(--radius-full); box-shadow: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="16" height="16" style="vertical-align: -3px; margin-right: 4px;">
+                                    <polyline points="23 4 23 10 17 10"/>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                </svg>
+                                Volver a Escanear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Camera -->
+                <div class="tab-content" id="panel-camera">
+                    <div class="camera-container" id="camera-container" style="position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 340px; align-items: center; justify-content: center;">
+                        <!-- Placeholder (shown when camera is off) -->
+                        <div class="camera-placeholder" id="camera-placeholder">
+                            <div class="cam-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                    <circle cx="12" cy="13" r="4"/>
+                                </svg>
+                            </div>
+                            <p>Haz clic en "Iniciar Cámara" para comenzar</p>
+                        </div>
+
+                        <!-- Camera feed (hidden until started) -->
+                        <img class="camera-feed" id="camera-feed" src="" alt="Feed de cámara en vivo" style="display:none; width: 80%; max-width: 500px; border-radius: 12px; margin: 15px 0;">
+
+                        <!-- LIVE badge (hidden until streaming) -->
+                        <div class="live-badge" id="live-badge" style="display:none;">
+                            <span class="live-dot"></span>
+                            EN VIVO
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="camera-controls">
+                            <button class="btn-camera start" id="btn-start-camera">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Iniciar Cámara
+                            </button>
+                            <button class="btn-camera stop" id="btn-stop-camera" style="display:none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                    <rect x="6" y="6" width="12" height="12" rx="1"/>
+                                </svg>
+                                Detener
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ╚═══ /Scan Zone ═══╝ -->
+
+            <!-- ╔═══ Details Card ═══╗ -->
+            <div class="card details-card" id="details-card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--border-light);">
+                    <h3 style="font-size: 15px; font-weight: 600; color: var(--text-dark); margin: 0;">Análisis Multidimensional de Rasgos</h3>
+                </div>
+                <div class="details-card-body" style="display: flex; gap: 24px; padding: 24px; align-items: center; min-height: 250px; flex-wrap: wrap;">
+                    <div class="radar-chart-container" style="width: 260px; height: 260px; flex-shrink: 0; position: relative; margin: 0 auto;">
+                        <canvas id="details-radar-chart"></canvas>
+                    </div>
+                    <div class="details-explanation-box" style="flex: 1; min-width: 250px; padding: 20px; background: var(--bg-main); border-radius: var(--radius); border-left: 4px solid var(--primary);">
+                        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">Justificación de Clasificación</h4>
+                        <p id="details-explanation-text" style="font-size: 13px; line-height: 1.6; color: var(--text-body); margin: 0;">Por favor, realiza un análisis de imagen en la zona de escaneo para visualizar el desglose detallado de características visuales.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            </div>
+
+            <!-- ╔═══ Results Panel ═══╗ -->
+            <div class="results-panel">
+
+                <!-- Gauge Card -->
+                <div class="card gauge-card">
+                    <div class="card-header">
+                        <h3>Métricas de Coincidencia</h3>
+                        <a href="#" class="details-link" id="btn-details">Detalles
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="14" height="14">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="gauge-container">
+                        <canvas id="gauge-chart"></canvas>
+                        <div class="gauge-value-wrapper">
+                            <div class="gauge-percentage" id="gauge-percentage">--%</div>
+                            <div class="gauge-label" id="gauge-label">Coincidencia</div>
+                        </div>
+                    </div>
+                    <div class="gauge-stats">
+                        <div class="gauge-stat-row">
+                            <span>Total Detecciones</span>
+                            <span id="stat-total">0</span>
+                        </div>
+                        <div class="gauge-stat-row">
+                            <span>Extintores Encontrados</span>
+                            <span id="stat-found">0</span>
+                        </div>
+                        <div class="gauge-stat-row">
+                            <span>Resultado</span>
+                            <span class="gauge-change" id="stat-change">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" width="12" height="12">
+                                    <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                                Esperando
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promo Card (abajo de las métricas) -->
+                <div class="card promo-card">
+                    <div class="promo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="24" height="24">
+                            <path d="M12 2L3 7v6c0 5.25 3.75 10.13 9 11 5.25-.87 9-5.75 9-11V7l-9-5z"/>
+                        </svg>
+                    </div>
+                    <h4>ExtintorAI v1.0</h4>
+                    <p>Sistema de detección inteligente impulsado por MobileNetV2 y ONNX Runtime.</p>
+                    <span class="promo-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="14" height="14">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Modelo entrenado al 100% accuracy
+                    </span>
+                </div>
+
+                <!-- History Card -->
+                <div class="card history-card">
+                    <div class="card-header">
+                        <h3>Últimas Detecciones</h3>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <!-- Empty State -->
+                        <div class="empty-state" id="history-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <p>Aún no hay detecciones.<br>Sube una imagen para comenzar.</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <!-- ╚═══ /Results Panel ═══╝ -->
+
+        </div>
+        </section>
+        <!-- ═══════ /PAGE: Dashboard ═══════ -->
+
+
+        <!-- ═══════ PAGE: Historial ═══════ -->
+        <section class="page" id="page-historial">
+
+            <!-- Header -->
+            <div class="historial-header">
+                <div>
+                    <h2>Historial de Detecciones</h2>
+                    <p class="historial-subtitle">Registro completo de todos los análisis realizados</p>
+                </div>
+                <button class="btn-primary" id="btn-clear-history">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="18" height="18">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Limpiar Historial
+                </button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="historial-stats-row">
+                <div class="hstat-card">
+                    <div class="hstat-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div class="hstat-info">
+                        <span class="hstat-value" id="h-total">0</span>
+                        <span class="hstat-label">Total Análisis</span>
+                    </div>
+                </div>
+                <div class="hstat-card">
+                    <div class="hstat-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="hstat-info">
+                        <span class="hstat-value" id="h-found">0</span>
+                        <span class="hstat-label">Extintores Detectados</span>
+                    </div>
+                </div>
+                <div class="hstat-card">
+                    <div class="hstat-icon red">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <div class="hstat-info">
+                        <span class="hstat-value" id="h-notfound">0</span>
+                        <span class="hstat-label">No Detectados</span>
+                    </div>
+                </div>
+                <div class="hstat-card">
+                    <div class="hstat-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div class="hstat-info">
+                        <span class="hstat-value" id="h-effectiveness">0%</span>
+                        <span class="hstat-label">Efectividad</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Effectiveness Chart -->
+            <div class="card historial-chart-card">
+                <div class="card-header">
+                    <h3>Gráfica de Efectividad</h3>
+                    <span class="chart-legend">
+                        <span class="legend-dot green"></span> Detectado (>=98%)
+                        <span class="legend-dot yellow" style="background: #F59E0B"></span> Incierto (<98%)
+                        <span class="legend-dot red"></span> No detectado
+                    </span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="effectiveness-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Full History Table -->
+            <div class="card historial-table-card">
+                <div class="card-header">
+                    <h3>Todas las Detecciones</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table class="detection-table" id="detection-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Archivo</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Confianza</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detection-table-body">
+                        </tbody>
+                    </table>
+                    <div class="table-empty" id="table-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" width="48" height="48">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <p>No hay detecciones registradas aún.<br>Sube una imagen desde el panel principal.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <!-- ═══════ /PAGE: Historial ═══════ -->
+
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+
+
+    <!-- Snapshot Full Screen Modal (shown upon capture) -->
+    <div id="camera-snapshot-overlay" style="display:none; position: fixed; inset: 0; background: rgba(10, 10, 15, 0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+        <div style="background: var(--bg-main); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 30px 40px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 90vw;">
+            <h3 style="color:#10B981; margin: 0 0 20px 0; font-weight: 700; font-size: 24px; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" width="28" height="28">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                ¡Extintor Verificado!
+            </h3>
+            <img id="camera-snapshot-img" src="" style="max-height: 55vh; border: 4px solid #10B981; border-radius: var(--radius-lg); box-shadow: 0 8px 30px rgba(16, 185, 129, 0.25);">
+            <div class="snapshot-timer" id="snapshot-timer" style="color: var(--text-muted); margin-top: 24px; font-weight: 500; font-size: 15px;">
+                Captura guardada. Regresando a escaneo en <span id="snapshot-countdown" style="color: var(--text-dark); font-weight: 700; font-size: 18px;">10</span> segundos...
+            </div>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="app.js?v=10"></script>
+</body>
+</html>
