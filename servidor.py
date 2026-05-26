@@ -108,7 +108,7 @@ def run_inference(img_pil, img_array):
     resultado = sess.run(['confidence_score'], {'cam_input': img_array})
     conf = float(resultado[0][0][0])
     es_extintor = conf < UMBRAL
-    confianza = round((1 - conf) * 100, 2) if es_extintor else round(conf * 100, 2)
+    confianza = round((1 - conf) * 100, 1) if es_extintor else round(conf * 100, 1)
 
     # Inferencia general siempre para verificar
     img_resized = img_pil.convert('RGB').resize((224, 224))
@@ -151,7 +151,7 @@ def run_inference(img_pil, img_array):
 
     return {
         'es_extintor': es_extintor,
-        'confianza': round(confianza, 2),
+        'confianza': round(confianza, 1),
         'etiqueta': 'Extintor Detectado' if es_extintor else 'No es Extintor',
         'raw_score': round(conf, 6),
         'objeto_detectado': objeto_detectado
@@ -316,7 +316,7 @@ def gen_camera_frames():
                             'fecha': time.strftime('%Y-%m-%d'),
                             'resultado': {
                                 'es_extintor': True,
-                                'confianza': round(confianza, 2),
+                                'confianza': round(confianza, 1),
                                 'etiqueta': 'Extintor Detectado',
                                 'imagen_b64': b64
                             }
@@ -349,7 +349,7 @@ def gen_camera_frames():
                         'fecha': time.strftime('%Y-%m-%d'),
                         'resultado': {
                             'es_extintor': False,
-                            'confianza': round(confianza, 2),
+                            'confianza': round(confianza, 1),
                             'etiqueta': 'No es Extintor',
                             'imagen_b64': b64_neg
                         }
@@ -364,7 +364,7 @@ def gen_camera_frames():
 
             with stats_lock:
                 latest_camera_stats['es_extintor'] = es_extintor
-                latest_camera_stats['confianza'] = round(confianza, 2)
+                latest_camera_stats['confianza'] = round(confianza, 1)
                 if new_capture_made:
                     latest_camera_stats['new_capture'] = True
                     latest_camera_stats['capture_b64'] = b64
