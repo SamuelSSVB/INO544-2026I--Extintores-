@@ -2300,14 +2300,4 @@ input, select, textarea { font-family: var(--font); }
 }
 
 
-/* ═══════════════════════════════════
-   REDUCED MOTION PREFERENCE
-   ═══════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-    .bg-blobs { display: none; }
-}
+/* Removed prefers-reduced-motion to ensure scan animations always play */
