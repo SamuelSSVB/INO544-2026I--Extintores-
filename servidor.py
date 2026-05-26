@@ -248,7 +248,7 @@ def gen_camera_frames():
             current_time = time.time()
 
             if es_extintor and confianza >= 98.0:
-                if current_time - last_saved_time > 20.0:
+                if current_time - last_saved_time > 45.0:
                     # VALIDACIÓN EXTRA: Prevenir falsos positivos (como botellas de jugo rojas)
                     img_array_gen = tf.keras.preprocessing.image.img_to_array(img_resized)
                     img_array_gen = np.expand_dims(img_array_gen, axis=0)
@@ -328,9 +328,9 @@ def gen_camera_frames():
                             global_total += 1
                             global_encontrados += 1
                         
-            # Lógica de Escaneo Negativo cada 5s (incluso si fue falso positivo anulado)
+            # Lógica de Escaneo Negativo cada 45s (incluso si fue falso positivo anulado)
             new_negative_scan_made = False
-            if current_time - last_negative_scan_time >= 5.0:
+            if current_time - last_negative_scan_time >= 45.0:
                 if not es_extintor:
                     capture_frame_neg = frame.copy()
                     fh, fw = capture_frame_neg.shape[:2]
@@ -449,6 +449,7 @@ def api_camera_status():
     """Devuelve las métricas en tiempo real de la cámara."""
     with stats_lock:
         res = latest_camera_stats.copy()
+        latest_camera_stats['new_capture'] = False
         latest_camera_stats['capture_b64'] = None
         latest_camera_stats['new_negative_scan'] = False
         latest_camera_stats['negative_b64'] = None

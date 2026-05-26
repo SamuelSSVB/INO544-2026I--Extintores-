@@ -61,3 +61,6 @@ venv.bak/
 !/model/*.onnx
 !/model/*.json
 tf_env/
+
+# --- Capturas temporales de cámara ---
+frontend/capturas/

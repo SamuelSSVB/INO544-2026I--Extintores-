@@ -1,0 +1,11 @@
+flask
+onnxruntime
+numpy<2.0.0
+Pillow
+opencv-python
+tensorflow
+deep_translator
+matplotlib
+icrawler
+tf2onnx
+onnx

@@ -413,7 +413,6 @@ function startCamera() {
                 renderRadarChart();
                 
                 if (data.new_capture) {
-                    showToast('¡Extintor detectado! Captura guardada automáticamente.', 'success');
                     totalDetections++;
                     totalFound++;
                     updateDashboardStats();
@@ -429,9 +428,13 @@ function startCamera() {
                     detectionHistory.unshift(entry);
                     addDashboardHistoryItem(entry);
 
-                    // Show the snapshot overlay for 10 seconds
+                    // Mostrar la ventana modal con la coincidencia y porcentaje del extintor
                     if (data.capture_b64) {
                         DOM.cameraSnapshotImg.src = `data:image/jpeg;base64,${data.capture_b64}`;
+                        const pctSpan = $('snapshot-percentage');
+                        if (pctSpan) {
+                            pctSpan.textContent = `${data.confianza}%`;
+                        }
                         DOM.cameraSnapshotOverlay.style.display = 'flex';
                         let timeLeft = 10;
                         DOM.snapshotCountdown.textContent = timeLeft;
