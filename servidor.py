@@ -376,36 +376,42 @@ def gen_camera_frames():
             h, w = frame.shape[:2]
 
             if es_extintor:
-                color = (0, 220, 100)
-                label = f"EXTINTOR ({confianza:.1f}%)"
+                color_text = (0, 255, 120) # Verde brillante
+                label = f"OBJETO DETECTADO: EXTINTOR [{confianza:.1f}%]"
+                color_qr = (0, 255, 120)
             else:
-                color = (60, 60, 220)
-                label = f"NO EXTINTOR ({confianza:.1f}%)"
+                color_text = (240, 200, 50) # Amarillo suave
+                label = f"ANALIZANDO ENTORNO... [{confianza:.1f}%]"
+                color_qr = (255, 255, 255) # Blanco para el QR en modo normal
 
             # Dibujar recuadro de escaneo tipo QR en el centro del frame
             cx, cy = w // 2, h // 2
-            bw, bh = 150, 180 # Ancho y alto del recuadro
-            thickness = 3
-            length = 35
+            bw, bh = 140, 140 # Ancho y alto del recuadro (cuadrado)
+            thickness = 2
+            length = 30
             
             # Top-left
-            cv2.line(frame, (cx-bw, cy-bh), (cx-bw+length, cy-bh), color, thickness)
-            cv2.line(frame, (cx-bw, cy-bh), (cx-bw, cy-bh+length), color, thickness)
+            cv2.line(frame, (cx-bw, cy-bh), (cx-bw+length, cy-bh), color_qr, thickness)
+            cv2.line(frame, (cx-bw, cy-bh), (cx-bw, cy-bh+length), color_qr, thickness)
             # Top-right
-            cv2.line(frame, (cx+bw, cy-bh), (cx+bw-length, cy-bh), color, thickness)
-            cv2.line(frame, (cx+bw, cy-bh), (cx+bw, cy-bh+length), color, thickness)
+            cv2.line(frame, (cx+bw, cy-bh), (cx+bw-length, cy-bh), color_qr, thickness)
+            cv2.line(frame, (cx+bw, cy-bh), (cx+bw, cy-bh+length), color_qr, thickness)
             # Bottom-left
-            cv2.line(frame, (cx-bw, cy+bh), (cx-bw+length, cy+bh), color, thickness)
-            cv2.line(frame, (cx-bw, cy+bh), (cx-bw, cy+bh-length), color, thickness)
+            cv2.line(frame, (cx-bw, cy+bh), (cx-bw+length, cy+bh), color_qr, thickness)
+            cv2.line(frame, (cx-bw, cy+bh), (cx-bw, cy+bh-length), color_qr, thickness)
             # Bottom-right
-            cv2.line(frame, (cx+bw, cy+bh), (cx+bw-length, cy+bh), color, thickness)
-            cv2.line(frame, (cx+bw, cy+bh), (cx+bw, cy+bh-length), color, thickness)
+            cv2.line(frame, (cx+bw, cy+bh), (cx+bw-length, cy+bh), color_qr, thickness)
+            cv2.line(frame, (cx+bw, cy+bh), (cx+bw, cy+bh-length), color_qr, thickness)
 
-            # Fondo semitransparente para el texto
-            (tw, th), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.85, 2)
-            cv2.rectangle(frame, (8, h - 52), (24 + tw, h - 14), (0, 0, 0), -1)
-            cv2.putText(frame, label, (16, h - 24),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.85, color, 2, cv2.LINE_AA)
+            # Barra inferior translúcida elegante
+            overlay = frame.copy()
+            cv2.rectangle(overlay, (0, h - 50), (w, h), (10, 10, 15), -1)
+            cv2.addWeighted(overlay, 0.8, frame, 0.2, 0, frame)
+
+            # Texto centrado y moderno
+            (tw, th), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_DUPLEX, 0.65, 1)
+            cv2.putText(frame, label, (w//2 - tw//2, h - 18),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.65, color_text, 1, cv2.LINE_AA)
 
             # Codificar como JPEG
             _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])

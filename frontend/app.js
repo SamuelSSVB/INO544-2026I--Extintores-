@@ -222,6 +222,7 @@ function resetUpload() {
     DOM.resultBadge.textContent = '';
     DOM.scanOverlay.style.display = 'none';
     DOM.processingLabel.style.display = 'none';
+    DOM.resultDisplay.classList.remove('scanning', 'glow-success', 'glow-danger');
     DOM.fileInput.value = '';
     currentFile = null; // Limpiar la referencia de archivo
     if (DOM.resultWarningBox) DOM.resultWarningBox.style.display = 'none';
@@ -253,8 +254,11 @@ async function processFile(file) {
     DOM.dropzone.style.display = 'none';
     DOM.resultArea.style.display = 'block';
     DOM.resultBadge.style.display = 'none';
+    if (DOM.resultWarningBox) DOM.resultWarningBox.style.display = 'none';
     DOM.scanOverlay.style.display = 'block';
     DOM.processingLabel.style.display = 'flex';
+    DOM.resultDisplay.classList.add('scanning');
+    DOM.resultDisplay.classList.remove('glow-success', 'glow-danger');
 
     // Send to API
     try {
@@ -271,12 +275,14 @@ async function processFile(file) {
         const data = await response.json();
         lastInferenceTimeMs = Math.round(performance.now() - startTime);
 
-        // Small delay for visual effect
-        await sleep(800);
+        // Small delay for visual effect so the user sees the scanning animation
+        await sleep(2000);
 
         // Hide scanning animation
         DOM.scanOverlay.style.display = 'none';
         DOM.processingLabel.style.display = 'none';
+        DOM.resultDisplay.classList.remove('scanning');
+        DOM.resultDisplay.classList.add(data.es_extintor ? 'glow-success' : 'glow-danger');
 
         // Show result badge
         showResult(data, file.name);
@@ -284,6 +290,7 @@ async function processFile(file) {
     } catch (err) {
         DOM.scanOverlay.style.display = 'none';
         DOM.processingLabel.style.display = 'none';
+        DOM.resultDisplay.classList.remove('scanning');
         showToast('Error al procesar la imagen. Verifica que el servidor esté activo.', 'error');
         console.error('Error:', err);
     }
